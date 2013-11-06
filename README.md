@@ -13,7 +13,7 @@ you might want to take a look at CRDT PN-Counters)
 
 Cluster configuration
 =====================
-you nedd to create config file cluster.conf like this
+You need to create config file ```cluster.conf``` in project root directory like this:
 ```
 {name, master, {0.0.0.0}, 8080}.
 {node, 'slave1@server'}.
