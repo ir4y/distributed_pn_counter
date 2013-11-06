@@ -10,11 +10,11 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+    %% TODO move Ip and Port to _StartArgs
+    {ok, [{name, _NodeName, Ip, Port}|_Nodes]} = file:consult("cluster.conf"),
     Dispatch = cowboy_router:compile([
                 {'_', [{"/counter", counter_handler, []}]}
                 ]),
-    Ip = {0, 0, 0, 0},
-    Port = 8080,
     {ok, _} = cowboy:start_http(
             http, 100, [{ip, Ip}, {port, Port}], [{env, [{dispatch, Dispatch}]}]),
     counter_srv:start_link(),

@@ -5,7 +5,7 @@
     stop/0
     ]).
 
--define(APPS, [crypto, ranch, cowboy, counter]).
+-define(APPS, [gproc, crypto, ranch, cowboy, counter]).
 
 %% ===================================================================
 %% API functions
@@ -14,10 +14,10 @@
 
 start() ->
     ok = ensure_started(?APPS),
-    ok = sync:go(),
-    {ok, [{name, NodeName}|Nodes]} = file:consult("cluster.conf"),
+    {ok, [{name, NodeName, _Ip, _Port}|Nodes]} = file:consult("cluster.conf"),
     net_kernel:start([NodeName, shortnames]),
-    connect(Nodes).
+    connect(Nodes),
+    ok = sync:go().
 
 stop() ->
     sync:stop(),

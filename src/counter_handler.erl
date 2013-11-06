@@ -7,7 +7,6 @@ init(_Transport, Req, []) ->
         {ok, Req, undefined}.
 
 wrap_handle_ok(Req, Fun, Amount) ->
-    io:format("~p", [Amount]),
     counter_srv:Fun(Amount),
     cowboy_req:reply(200,
                      [{<<"content-type">>,

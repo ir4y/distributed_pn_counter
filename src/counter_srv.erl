@@ -46,6 +46,7 @@ merge(GCounter) ->
 %% ------------------------------------------------------------------
 
 init([]) ->
+    true = gproc:add_local_name(counter),
     %TODO load counter from local db
     {ok, riak_dt_gcounter:new()}.
 
@@ -53,25 +54,21 @@ handle_call({get_value}, _From, GCounter) ->
     Positive = lists:sum([Amount || {{Sign, _Node} ,Amount} <- GCounter, Sign =:= p]),
     Negative = lists:sum([Amount || {{Sign, _Node} ,Amount} <- GCounter, Sign =:= n]),
     {reply, Positive - Negative, GCounter};
-handle_call({merge, OtherGCounter}, _From, GCounter) ->
-    MergedGCounter = riak_dt_gcounter:merge(OtherGCounter, GCounter),
-    {reply, MergedGCounter, MergedGCounter};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast({increment, Amount}, GCounter) ->
-    {ok, NewGCounter} = riak_dt_gcounter:update({increment, Amount},
+handle_cast({Op, Amount}, GCounter) ->
+    {ok, NewGCounter} = riak_dt_gcounter:update({Op, Amount},
                                                 {p, node()},
                                                 GCounter),
-    {noreply, NewGCounter};
-handle_cast({decrement, Amount}, GCounter) ->
-    {ok, NewGCounter} = riak_dt_gcounter:update({increment, Amount},
-                                      {n, node()},
-                                      GCounter),
+    gproc:bcast({n, l, counter}, {merge, NewGCounter}),
     {noreply, NewGCounter};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_info({merge, OtherGCounter}, GCounter) ->
+    MergedGCounter = riak_dt_gcounter:merge(OtherGCounter, GCounter),
+    {noreply, MergedGCounter};
 handle_info(_Info, State) ->
     {noreply, State}.
 

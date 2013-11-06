@@ -15,14 +15,18 @@ Cluster configuration
 =====================
 you nedd to create config file cluster.conf like this
 ```
-{name, master}.
+{name, master, {0.0.0.0}, 8080}.
 {node, 'slave1@server'}.
 {node, 'slave2@server'}.
 {node, 'slave3@server'}.
 {node, 'slave4@server'}.
 ```    
 
-First line is name of current note, it will be set with ```net_kernel:start/0``` function call.
+First line describes the current note.
+name is constant atom, then it will be nodename. It will be set with ```net_kernel:start/0``` function call.
+Third param is ip addr to bind.
+Forth is port to listening.
+
 Other lines is list of cluster nodes names.
 Current node will try to connect to each node from list.
 If connect will be successed, conection loop will stop.
